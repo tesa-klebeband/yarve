@@ -19,7 +19,7 @@ void RiscV::initialize() {
     bus->attach(uart);
     bus->attach(clint);
 
-    ram->loadBinary(binary_file.c_str(), binary_base);
+    ram->loadBinary(kernel_file.c_str(), kernel_base);
     if (dtb_file != "") ram->loadBinary(dtb_file.c_str(), dtb_base);
 }
 
@@ -27,7 +27,7 @@ void RiscV::initialize() {
  * Run the RiscV machine.
 */
 void RiscV::run() {
-    cpu->reset(binary_entry, dtb_base);
+    cpu->reset(kernel_entry, dtb_base);
     
     timeval tv;
     gettimeofday(&tv, NULL);

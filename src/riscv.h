@@ -19,10 +19,10 @@ class RiscV {
         
         int ram_size = DEFAULT_RAM_SIZE;
         int ram_base = DEFAULT_RAM_BASE;
-        int binary_base = DEFAULT_CPU_PC;
-        int binary_entry = DEFAULT_CPU_PC;
+        int kernel_base = DEFAULT_CPU_PC;
+        int kernel_entry = DEFAULT_CPU_PC;
         int dtb_base = DEFAULT_DTB_BASE;
-        std::string binary_file;
+        std::string kernel_file;
         std::string dtb_file;
 
     private:

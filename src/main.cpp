@@ -3,7 +3,7 @@
 #include "riscv.h"
 
 void printHelp(std::string exec_name) {
-    std::cout << "Usage: " << exec_name << " [OPTION]... -b [BINARY]" << std::endl;
+    std::cout << "Usage: " << exec_name << " [OPTION]... -b [KERNEL]" << std::endl;
     std::cout << "Emulates a RiscV machine." << std::endl;
     std::cout << "All addresses have to be specified in hexadecimal, starting with '0x'." << std::endl;
     std::cout << std::endl;
@@ -11,11 +11,11 @@ void printHelp(std::string exec_name) {
     std::cout << "  -v, --version     display version information and exit" << std::endl;
     std::cout << "  -r, --ram         specify the RAM size in bytes" << std::endl;
     std::cout << "  -R, --ram-base    specify the base address of the RAM" << std::endl;
-    std::cout << "  -d, --dtb         specify the device tree binary file" << std::endl;
-    std::cout << "  -D, --dtb-base    specify the base address of the device tree binary" << std::endl;
-    std::cout << "  -b, --binary      specify the binary file to load" << std::endl;
-    std::cout << "  -B, --binary-base specify the base address of the binary file" << std::endl;
-    std::cout << "  -e, --entry       specify the entry point of the binary file" << std::endl;
+    std::cout << "  -d, --dtb         specify the device tree blob file" << std::endl;
+    std::cout << "  -D, --dtb-base    specify the base address of the device tree blob" << std::endl;
+    std::cout << "  -k, --kernel      specify the kernel to load" << std::endl;
+    std::cout << "  -K, --kernel-base specify the base address of the kernel" << std::endl;
+    std::cout << "  -e, --entry       specify the entry point of the kernel" << std::endl;
     std::cout << std::endl << std::flush;
 }
 
@@ -45,12 +45,12 @@ int main(int argc, char* argv[]) {
             riscv.dtb_file = argv[++i];
         } else if ((arg == "-D") || (arg == "--dtb-base")) {
             riscv.dtb_base = std::stoul(argv[++i], nullptr, 16);
-        } else if ((arg == "-b") || (arg == "--binary")) {
-            riscv.binary_file = argv[++i];
-        } else if ((arg == "-B") || (arg == "--binary-base")) {
-            riscv.binary_base = std::stoul(argv[++i], nullptr, 16);
+        } else if ((arg == "-k") || (arg == "--kernel")) {
+            riscv.kernel_file = argv[++i];
+        } else if ((arg == "-K") || (arg == "--kernel-base")) {
+            riscv.kernel_base = std::stoul(argv[++i], nullptr, 16);
         } else if ((arg == "-e") || (arg == "--entry")) {
-            riscv.binary_entry = std::stoul(argv[++i], nullptr, 16);
+            riscv.kernel_entry = std::stoul(argv[++i], nullptr, 16);
         } else {
             std::cout << "yarve: unrecognized option '" << arg << "'" << std::endl;
             std::cout << "Try 'yarve --help' for more information." << std::endl << std::flush;
@@ -58,14 +58,14 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if (riscv.binary_file == "") {
-        std::cout << "yarve: no binary file specified" << std::endl;
+    if (riscv.kernel_file == "") {
+        std::cout << "yarve: no kernel file specified" << std::endl;
         std::cout << "Try 'yarve --help' for more information." << std::endl << std::flush;
         return 1;
     }
 
     if (riscv.dtb_file == "") {
-        std::cout << "Warning: no device tree binary file specified" << std::endl << std::flush;
+        std::cout << "Warning: no device tree blob file specified" << std::endl << std::flush;
     }
 
     riscv.initialize();
