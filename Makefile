@@ -15,11 +15,20 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 all: prepare $(EXEC_BIN)
 
 prepare:
-	mkdir -p $(OBJ_DIR)
-	mkdir -p $(BUILD_DIR)
+	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(BUILD_DIR)
 
 $(EXEC_BIN): $(OBJS)
 	$(CPP) -Ofast -o $(BUILD_DIR)/$@ $^ $(LINKER)
 
+.PHONY: linux
+
+linux:
+	@cd linux && make
+	@cd ..
+
+run-linux:
+	$(BUILD_DIR)/$(EXEC_BIN) -k linux/build/Image -d linux/build/yarve.dtb
+
 clean:
-	rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR)
