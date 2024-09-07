@@ -41,13 +41,15 @@ class ICpuInterface {
         virtual uint32_t getTimerH() = 0;
         virtual void setTimerTriggerH(uint32_t value) = 0;
         virtual void setTimerTriggerL(uint32_t value) = 0;
+        virtual void triggerReset() = 0;
 };
 
 class Cpu : public ICpuInterface {
     public:
         Cpu(Bus* bus);
         void reset(uint32_t program_counter = DEFAULT_CPU_PC, uint32_t dtb_base = DEFAULT_DTB_BASE);
-        void execute(uint32_t num_instructions, uint32_t elapsed_micros);
+        void triggerReset();
+        bool execute(uint32_t num_instructions, uint32_t elapsed_micros);
         uint32_t getTimerL();
         uint32_t getTimerH();
         void setTimerTriggerH(uint32_t value);
@@ -66,6 +68,7 @@ class Cpu : public ICpuInterface {
         uint32_t reservation_addr;
         uint8_t op_mode;
         bool wfi_bit;
+        bool reset_triggered;
         Bus* bus;
 };
 

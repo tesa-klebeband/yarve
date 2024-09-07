@@ -10,6 +10,7 @@
 #include "ram.h"
 #include "uart.h"
 #include "clint.h"
+#include "syscon.h"
 
 class RiscV {
     public:
@@ -31,6 +32,7 @@ class RiscV {
         Cpu *cpu;
         Uart *uart;
         Clint *clint;
+        Syscon *syscon;
 };
 
 #endif

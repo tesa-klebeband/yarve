@@ -27,7 +27,21 @@ void Cpu::reset(uint32_t program_counter, uint32_t dtb_base) {
     pc = program_counter;
 }
 
-void Cpu::execute(uint32_t num_instructions, uint32_t elapsed_micros) {
+/**
+ * Trigger a reset.
+ */
+void Cpu::triggerReset() {
+    reset_triggered = true;
+}
+
+/**
+ * Execute a number of instructions.
+ * @param num_instructions The number of instructions to execute.
+ * @param elapsed_micros The number of microseconds elapsed.
+ * @return 1 if return reason is reset, 0 otherwise.
+ */
+bool Cpu::execute(uint32_t num_instructions, uint32_t elapsed_micros) {
+    reset_triggered = false;
     timer_h += (timer_l + elapsed_micros) < timer_l;
     timer_l += elapsed_micros;
 
@@ -40,7 +54,7 @@ void Cpu::execute(uint32_t num_instructions, uint32_t elapsed_micros) {
 
     if (wfi_bit) {
         usleep(500);
-        return;
+        return 0;
     }
 
     uint32_t exception = 0;
@@ -281,7 +295,7 @@ void Cpu::execute(uint32_t num_instructions, uint32_t elapsed_micros) {
                             csr[MSTATUS] |= 0x8;  // Enable interrupts
                             wfi_bit = true;
                             pc += 4;
-                            return;
+                            return 0;
                         } else if (((csr_num & 0xff) == 0x02)) {  // MRET & URET & SRET
                             uint32_t old_mstatus = csr[MSTATUS];
                             uint32_t old_op_mode = op_mode;
@@ -361,9 +375,10 @@ void Cpu::execute(uint32_t num_instructions, uint32_t elapsed_micros) {
                     exception = 2;  // Invalid opcode
             }
 
-            if (exception) break;  // If exception, break out of loop
-            if (rd) x[rd] = rval;  // If rd is set, write the return value to the register
-            pc += 4;               // Increment the program counter
+            if (reset_triggered) return 1;  // If reset triggered, break out of loop
+            if (exception) break;           // If exception, break out of loop
+            if (rd) x[rd] = rval;           // If rd is set, write the return value to the register
+            pc += 4;                        // Increment the program counter
         }
     }
 
@@ -383,6 +398,7 @@ void Cpu::execute(uint32_t num_instructions, uint32_t elapsed_micros) {
 
     if (csr[CYCLE_L] > cycle) csr[CYCLE_H]++;  // Increment the cycle high register if the low register has overflowed
     csr[CYCLE_L] = cycle;                      // Set the cycle low register to the current cycle count
+    return 0;
 }
 
 /**
