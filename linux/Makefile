@@ -4,6 +4,7 @@ BUILDROOT_DIR = buildroot
 DOWNLOAD_DIR = dl
 CONFIG_DIR = configs
 BUILDROOT_CONFIG = $(CONFIG_DIR)/buildroot_config
+LINUX_CONFIG = $(CONFIG_DIR)/yarve_defconfig
 BUILD_DIR = build
 OBJCOPY = $(BUILDROOT_DIR)/output/host/bin/riscv32-buildroot-linux-uclibc-objcopy
 DTC = $(BUILDROOT_DIR)/output/host/bin/dtc
@@ -28,11 +29,14 @@ linux:
 	@cd $(BUILDROOT_DIR) && make
 	@echo "Leaving Buildroot directory..."
 	@cd ..
-	@echo "Building DTB..."
-	$(DTC) -O dtb -o $(BUILD_DIR)/$(DTB_BASENAME).dtb $(CONFIG_DIR)/yarve.dts
+	make dtb
 	@echo "Stripping Linux image..."
 	$(OBJCOPY) -S -O binary $(BUILDROOT_DIR)/output/images/vmlinux $(KERNEL_BIN)
 	@echo "Done! Output files are stored in '$(BUILD_DIR)'."
+
+dtb:
+	@echo "Building DTB..."
+	$(DTC) -O dtb -o $(BUILD_DIR)/$(DTB_BASENAME).dtb $(CONFIG_DIR)/yarve.dts
 
 edit-buildroot-config:
 	@cp $(BUILDROOT_CONFIG) $(BUILDROOT_DIR)/.config
@@ -41,9 +45,10 @@ edit-buildroot-config:
 	@echo "Buildroot configuration in '$(BUILDROOT_CONFIG)' has been updated."
 
 edit-linux-config:
+	@cp $(LINUX_CONFIG) $(BUILDROOT_DIR)/output/build/linux-*/.config
 	@cd $(BUILDROOT_DIR) && make linux-menuconfig
-	@cp $(BUILDROOT_DIR)/output/build/linux-*/.config $(CONFIG_DIR)/linux_config
-	@echo "Linux configuration in '$(CONFIG_DIR)/linux_config' has been updated."
+	@cp $(BUILDROOT_DIR)/output/build/linux-*/.config $(LINUX_CONFIG)
+	@echo "Linux configuration in '$(LINUX_CONFIG)' has been updated."
 
 clean:
 	@rm -rf $(BUILD_DIR)
